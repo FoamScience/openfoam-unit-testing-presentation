@@ -4,10 +4,10 @@
   "author": "Mohammed Elwardi Fadeli",
   "html-inject-meta": {
     "name": "Unit testing OpenFOAM code with foamUT",
-    "description": "NHR4CES Machine Learning for combustion workshop, November 2023",
-    "url": "http://foamscience.github.io/openfoam-unit-testing/",
+    "description": "September 2024",
+    "url": "http://foamscience.github.io/openfoam-unit-testing-presentation/",
     "author": "Mohammed Elwardi Fadeli",
-    "image": "http://foamscience.github.io/openfoam-unit-testing/thumbnail.png"
+    "image": "http://foamscience.github.io/openfoam-unit-testing-presentation/thumbnail.png"
   },
   "dependencies": {
     "html-inject-meta": "^3.0.0"

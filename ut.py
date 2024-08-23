@@ -229,19 +229,8 @@ class UnitTesting(Slide):
             self.play(AnimationGroup(*anims))
         return mobjs[-1]
 
-    def hi_yaml(self, items, indents, anchor, distance):
-        anims = []
-        mobjs = []
-        for i in range(len(items)):
-            mobjs.append(Text(f"{items[i][0]}: {items[i][1]}", font_size=small_size,
-                 t2w={f"{items[i][0]}:": BOLD}, t2c={f"{items[i][0]}:": GREEN}))
-            if i == 0:
-                mobjs[i].next_to(anchor, DOWN*distance).align_to(anchor, LEFT).shift(indents[i]*RIGHT)
-            else:
-                mobjs[i].next_to(mobjs[i-1], DOWN).align_to(mobjs[i-1], LEFT).shift((indents[i]-indents[i-1])*RIGHT)
-        anims = [Create(mobjs[i]) for i in range(len(items))]
-        self.play(AnimationGroup(*anims))
-        return mobjs[-1]
+    def header(self, header, number):
+        return Text(f"{number} {header}", t2w={f"{number}": BOLD}, font_size=big_size).to_edge(UP+LEFT)
 
     def construct(self):
         self.camera.background_color = BACKGROUND_COLOR
@@ -331,15 +320,32 @@ class UnitTesting(Slide):
         self.next_slide()
 
         layout.remove(title)
-        title = Text(f"0.0 Why unit-test OpenFOAM code?", t2w={"0.": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        title = self.header("ToC", "-.-")
         layout.add(title)
         diagram = VGroup(vg1, vg2, vg3, vg4, vg5, vg6)
         keep_only_objects(self, Group(layout, diagram))
         self.play(Transform(diagram, title))
+
+        objs = Text("We'll be looking at:", font_size=mid_size).next_to(title, DOWN*4).align_to(title, LEFT)
+        self.play(FadeIn(objs))
+        items = [
+            "General notes on unit-tests",
+            "Effective unit-testing of OpenFOAM code: foamUT",
+            "Special treatment for RTS classes",
+            "Success stories"
+        ]
+        last = self.itemize(items, objs, 1.5, False,
+            t2w={f"1{ITEM_ICON}": BOLD, f"2{ITEM_ICON}": BOLD, f"3{ITEM_ICON}": BOLD, f"4{ITEM_ICON}": BOLD},
+            t2c={f"1{ITEM_ICON}": MAIN_COLOR, f"2{ITEM_ICON}": MAIN_COLOR, f"3{ITEM_ICON}": MAIN_COLOR, f"4{ITEM_ICON}": MAIN_COLOR})
+        self.next_slide()
+
+        t00 = self.header("The Importance of Unit Testing in OpenFOAM", "0.0")
+        keep_only_objects(self, layout)
+        self.play(Transform(title, t00))
         self.next_slide()
 
         objs = Text("- Enforcing Intention-Code 'strong coupling':", font_size=mid_size).next_to(title, DOWN*2).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
         items = [
             "New functionality works as intended.",
             "Backward-compatibility, and catching (unintended) breaking changes.",
@@ -352,7 +358,7 @@ class UnitTesting(Slide):
         self.next_slide()
 
         objs = Text("- Automated tests?", font_size=mid_size).next_to(title, DOWN*14).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
         items = [
             "Usually unexpensive, testing small code entities.",
             "Automated => discourage frequent API changes.",
@@ -364,13 +370,13 @@ class UnitTesting(Slide):
             t2c={f"1{ITEM_ICON}": MAIN_COLOR, f"2{ITEM_ICON}": MAIN_COLOR, f"3{ITEM_ICON}": MAIN_COLOR, f"4{ITEM_ICON}": MAIN_COLOR})
         self.next_slide()
 
-        t2 = Text(f"1.1 What OpenFOAM code to test?", t2w={"1.1": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t2 = self.header("Identifying Which OpenFOAM Code to Test", "1.0")
         keep_only_objects(self, Group(layout))
         self.play(Transform(title, t2))
         self.next_slide()
 
         objs = Text("- Effective unit-testing takes:", font_size=mid_size).next_to(title, DOWN*2).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
         items = [
             "Writing test-friendly code in the first place.",
             "Prioritizing testing of Public Intefaces.",
@@ -382,7 +388,7 @@ class UnitTesting(Slide):
         self.next_slide()
 
         objs = Text("- Test-friendly code?", font_size=mid_size).next_to(title, DOWN*12).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
         items = [
             "Minimal interfacing with Disk IO, databases, external protocols ... etc.",
             "Private members should not be candidates for testing.",
@@ -394,13 +400,13 @@ class UnitTesting(Slide):
             t2c={f"1{ITEM_ICON}": MAIN_COLOR, f"2{ITEM_ICON}": MAIN_COLOR, f"3{ITEM_ICON}": MAIN_COLOR, f"4{ITEM_ICON}": MAIN_COLOR})
         self.next_slide()
 
-        t3 = Text(f"1.2 How to perform OpenFOAM code tests?", t2w={"1.2": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t3 = self.header(f"Principles behind unit-testing", "1.1")
         keep_only_objects(self, Group(layout))
         self.play(Transform(title, t3))
         self.next_slide()
 
         objs = Text("- Isolation:", font_size=mid_size).next_to(title, DOWN*2).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
         items = [
             "Each class is tested in its default state (configuration).",
             "Dependencies for construction should be generated on-the-fly.",
@@ -412,8 +418,8 @@ class UnitTesting(Slide):
             t2c={f"1{ITEM_ICON}": MAIN_COLOR, f"2{ITEM_ICON}": MAIN_COLOR, f"3{ITEM_ICON}": MAIN_COLOR, f"4{ITEM_ICON}": MAIN_COLOR})
         self.next_slide()
 
-        objs = Text("- Production parity:", font_size=mid_size).next_to(title, DOWN*13).align_to(title, LEFT)
-        self.play(Create(objs))
+        objs = Text("- Production parity:", font_size=mid_size).next_to(last, DOWN*3).align_to(title, LEFT)
+        self.play(FadeIn(objs))
         items = [
             "Stay as close as possible to 'standard usage' of classes.",
             "Including the way their dependencies are built.",
@@ -425,7 +431,7 @@ class UnitTesting(Slide):
             t2c={f"1{ITEM_ICON}": MAIN_COLOR, f"2{ITEM_ICON}": MAIN_COLOR, f"3{ITEM_ICON}": MAIN_COLOR, f"4{ITEM_ICON}": MAIN_COLOR})
         self.next_slide()
 
-        t4 = Text(f"2.1 Write testable code - Basics", t2w={"2.1": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t4 = self.header(f"Writing Testable OpenFOAM Code: The basics", "2.0")
         keep_only_objects(self, Group(layout))
         self.play(Transform(title, t4))
         self.next_slide()
@@ -435,7 +441,7 @@ class UnitTesting(Slide):
             code_t = replace_nth_line(code_t, i, " "*len(testable_code.splitlines()[i-1]))
         code_t = replace_nth_line(code_t, 11, "    MyClass();")
         code = Code(code=code_t, language="cpp").to_edge(RIGHT)
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
 
         code_t = testable_code
@@ -475,16 +481,16 @@ class UnitTesting(Slide):
         self.play(FadeIn(VGroup(ev1, ev2)))
         self.next_slide()
 
-        t5 = Text(f"2.2 Not so-test-friendly classes!", t2w={"2.2": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t5 = self.header("Tackling Difficult-to-Test Classes", "2.1")
         keep_only_objects(self, Group(layout))
         self.play(Transform(title, t5))
         self.next_slide()
 
         code = Code(code=self_configured, language="cpp")
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
 
-        t6 = Text(f"2.3 foamUT: Effective OpenFOAM unit-testing", t2w={"2.3": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t6 = self.header(f"foamUT: Effective OpenFOAM unit-testing", "2.2")
         keep_only_objects(self, Group(layout))
         self.play(Transform(title, t6))
         self.next_slide()
@@ -582,12 +588,12 @@ class UnitTesting(Slide):
         self.next_slide()
 
         keep_only_objects(self, Group(layout))
-        t7 = Text(f"2.4 Basic foamUT usage - Hands-on", t2w={"2.4": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t7 = self.header("Hands-On: Basic Usage of foamUT", "2.3")
         self.play(Transform(title, t7))
         self.next_slide()
 
         code = Code(code=handson1, language="cpp")
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
 
         code_t = VGroup(
@@ -598,21 +604,21 @@ class UnitTesting(Slide):
         self.next_slide()
 
         keep_only_objects(self, Group(layout))
-        t8 = Text(f"2.5 Advanced foamUT usage - Hands-on", t2w={"2.5": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t8 = self.header(f"Hands-On: Advanced foamUT Techniques", "2.4")
         self.play(Transform(title, t8))
         self.next_slide()
 
         code = Code(code=handson4, language="cpp")
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
 
         keep_only_objects(self, layout)
-        t9 = Text(f"2.6 Advanced foamUT usage - Espionage Mode", t2w={"2.6": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t9 = self.header("Advanced foamUT: Espionage Mode", "2.5")
         self.play(Transform(title, t9))
         self.next_slide()
 
         code = Code(code=espionage, language="cpp")
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
         
         tx = Text(f"PLEASE don't do this for YOUR classes though!", t2w={"PLEASE": BOLD, "YOUR": BOLD}, color=DOT_COLOR).next_to(code,DOWN)
@@ -620,9 +626,9 @@ class UnitTesting(Slide):
         self.next_slide()
 
         keep_only_objects(self, layout)
-        t10 = Text(f"2.7 Advanced foamUT usage - CI setup", t2w={"2.7": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t10 = self.header("Integrating foamUT with CI", "2.6")
         code = Code(code=timeouts, language="cpp")
-        self.play(Transform(title, t10), Create(code))
+        self.play(Transform(title, t10), FadeIn(code))
         self.next_slide()
         
         tx = Text(f"POSIX signaling works for serial tests", color=GRAPH_COLOR).next_to(code,DOWN)
@@ -631,7 +637,7 @@ class UnitTesting(Slide):
         self.next_slide()
 
         keep_only_objects(self, layout)
-        t11 = Text(f"3.1 Testing RTS Classes in a perfect world", t2w={"3.1": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t11 = self.header(f"Testing RTS Classes: The Ideal Approach", "3.0")
         self.play(Transform(title, t11))
         self.next_slide()
 
@@ -640,7 +646,7 @@ class UnitTesting(Slide):
             code_t = replace_nth_line(code_t, i, "   ")
         code_t = replace_nth_line(code_t, 12, "    autoPtr<baseModel> bm = baseModel::New(mesh);")
         code = Code(code=code_t, language="cpp").to_edge(RIGHT)
-        self.play(Create(code))
+        self.play(FadeIn(code))
         self.next_slide()
 
         ev1 = Text(r"Only include the", t2w={"Only": BOLD}, line_spacing=0.4, font_size=small_size)
@@ -649,9 +655,9 @@ class UnitTesting(Slide):
         self.play(FadeIn(VGroup(ev1, ev2)))
         self.next_slide()
 
-        ev1 = Text(r"Create a concrete object", t2w={"concrete": BOLD}, line_spacing=0.4, font_size=small_size)
+        ev1 = Text(r"Create a concrete obj", t2w={"concrete": BOLD}, line_spacing=0.4, font_size=small_size)
         ev1.next_to(code, LEFT).shift(1.2*DOWN)
-        ev2 = Text(r"and test its interface", line_spacing=0.4, font_size=small_size).next_to(ev1, 0.5*DOWN)
+        ev2 = Text(r"& test its interface", line_spacing=0.4, font_size=small_size).next_to(ev1, 0.5*DOWN)
         self.play(FadeIn(VGroup(ev1, ev2)))
         self.next_slide()
 
@@ -694,13 +700,13 @@ class UnitTesting(Slide):
         self.play(Swap(code2, code3), FadeIn(VGroup(ev1, ev2)))
         self.next_slide()
 
-        ev1 = Text(f"{ITEM_ICON} passing config helps", t2c={f"{ITEM_ICON}": WARN_COLOR}, line_spacing=0.4, font_size=small_size)
+        ev1 = Text(f"passing config helps", line_spacing=0.4, font_size=small_size)
         ev1.next_to(code3, 2*LEFT)
         ev2 = Text(r"with nested models", line_spacing=0.4, font_size=small_size).next_to(ev1, 0.5*DOWN)
         self.play(FadeIn(VGroup(ev1, ev2)))
         self.next_slide()
 
-        ev1 = Text(f"{ITEM_ICON} can abuse the RTS", t2c={f"{ITEM_ICON}": WARN_COLOR}, line_spacing=0.4, font_size=small_size)
+        ev1 = Text(f"can abuse the RTS", line_spacing=0.4, font_size=small_size)
         ev1.next_to(code3, LEFT*2).shift(UP)
         ev2 = Text(r"mechanism", line_spacing=0.4, font_size=small_size).next_to(ev1, 0.5*DOWN)
         self.play(FadeIn(VGroup(ev1, ev2)))
@@ -730,7 +736,7 @@ class UnitTesting(Slide):
         keep_only_objects(self, layout)
 
         objs = Text("- Objectives again?", font_size=mid_size).next_to(title, DOWN*2).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
 
         items = [
             "Test in an isolated environment.",
@@ -744,7 +750,7 @@ class UnitTesting(Slide):
         self.next_slide()
 
         objs = Text("- How much can we realistically achieve?", font_size=mid_size).next_to(title, DOWN*14).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
 
         items = [
             "Isolated environment? not really! eg. dependency on a mesh.",
@@ -757,11 +763,43 @@ class UnitTesting(Slide):
         self.next_slide()
 
         keep_only_objects(self, layout)
-        t12 = Text(f"3.2 Reflections for unit-testing", t2w={"3.2": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+
+        cols = {
+            "class": YELLOW,
+            "template": YELLOW,
+            "bool": YELLOW,
+            "<": GRAY,
+            ">": GRAY,
+            "(": GRAY,
+            ")": GRAY,
+            ";": GRAY,
+            ",": GRAY,
+            "&": GRAPH_COLOR,
+        }
+        gt_t = Text(f"template <class T>",t2c=cols).shift(DOWN)
+        gt_a = Text(f"dictionary generateSchema();",t2c=cols).next_to(gt_t, 0.7*DOWN).align_to(gt_t, LEFT)
+        self.play(FadeIn(gt_t, gt_a))
+        self.next_slide()
+
+        gt_t1 = Text(f"template <class T, class Format, bool ConstructMode>", t2c=cols).shift(DOWN)
+        gt_a1 = Text(f"Format generateSchema(Format& config);", t2c=cols).next_to(gt_t1, 0.7*DOWN).align_to(gt_t1, LEFT)
+
+        desc1 = Text(f"Test possible types: Format(dictionary, JSON)").next_to(gt_t, 4*UP).align_to(gt_t1, LEFT)
+        desc2 = Text(f"Test possible modes: ConstructMode(true, false)").next_to(gt_t, 6*UP).align_to(gt_t1, LEFT)
+        desc3 = Text(f"Test configurability").next_to(gt_t, 8*UP).align_to(gt_t1, LEFT)
+        self.play(
+            Transform(gt_t, gt_t1),
+            Transform(gt_a, gt_a1),
+            FadeIn(desc1, desc2, desc3)
+        )
+        self.next_slide()
+
+        keep_only_objects(self, layout)
+        t12 = self.header("C++ Reflections for unit-testing", "3.1")
         self.play(Transform(title, t12))
 
         objs = Text("- A little bit of setup can get us:", font_size=mid_size).next_to(title, DOWN*2).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
 
         items = [
             "Automatically-generated dictionaries of required keywords for a class -> generic.",
@@ -775,7 +813,7 @@ class UnitTesting(Slide):
         self.next_slide()
 
         objs = Text("- Fetching default values accurately is important because:", font_size=mid_size).next_to(title, DOWN*13).align_to(title, LEFT)
-        self.play(Create(objs))
+        self.play(FadeIn(objs))
 
         items = [
             "No one wants to test non-standard class configurations prematurely",
@@ -788,7 +826,7 @@ class UnitTesting(Slide):
             t2c={f"1{ITEM_ICON}": GREEN, f"2{ITEM_ICON}": GREEN, f"3{ITEM_ICON}": GREEN, f"4{ITEM_ICON}": GREEN})
         self.next_slide()
 
-        t13 = Text(f"4.1 Success stories", t2w={"4.1": BOLD}, font_size=big_size).to_edge(UP+LEFT)
+        t13 = self.header(f"Real-World Success Stories", "4.0")
         keep_only_objects(self, layout)
         self.play(Transform(title, t13))
         self.next_slide()
@@ -855,5 +893,9 @@ class UnitTesting(Slide):
             "FO is fine; smth wrong in ur env?"
         ).next_to(gr3, DOWN).align_to(gr3, LEFT)
         self.play(FadeIn(gr2, gr3, gr4))
+        self.next_slide()
 
-
+        tf = Text(f"THANK YOU", t2w={"THANK YOU": BOLD}, font_size=big_size*2)
+        keep_only_objects(self, layout)
+        self.play(Transform(title, tf))
+        self.next_slide()
